@@ -9,9 +9,9 @@ from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMar
 
 
 token = Token().get_token()
-WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
+# WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
 
-requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
+# requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
 
 class Club:
     def __init__(self, name, info):
@@ -48,7 +48,11 @@ class ClubBot:
         self.subjects = []
         self.load_data()
         self.setup_handlers()
+        self.set_webhook()
 
+    def set_webhook(self):
+        WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
+        requests.post(f'https://api.telegram.org/bot{self.bot.token}/setWebhook?url={WEBHOOK_URL}')
     def load_data(self):
         data_loader = DataLoader('clear_data.json', 'questions.json')
         data, self.additional_questions = data_loader.load_data()
