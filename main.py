@@ -116,4 +116,4 @@ class ClubBot:
 
 if __name__ == "__main__":
     club_bot = ClubBot(token)
-    club_bot.start_polling()
+    # club_bot.start_polling()
