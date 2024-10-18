@@ -9,7 +9,7 @@ from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMar
 
 
 token = Token().get_token()
-WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5/service/de77071c-0396-4d43-b37f-c423b169f72b?id=97ba14ab-f5ff-4a56-9c50-2575bdda9422'
+WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
 
 requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
 
