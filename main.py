@@ -46,8 +46,8 @@ class ClubBot:
         self.load_data()
         self.setup_handlers()
 
-    def load_data(self):
-        data_loader = DataLoader('clear_data.json', 'questions.json')
+    def load_data(self) -> None:
+        data_loader = DataLoader('dataset/clear_data.json', 'dataset/questions.json')
         data, self.additional_questions = data_loader.load_data()
         
         for subject_name, clubs_info in data.items():
