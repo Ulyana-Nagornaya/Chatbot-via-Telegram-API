@@ -47,12 +47,12 @@ class ClubBot:
         self.setup_handlers()
         self.set_webhook()
 
-    def set_webhook(self):
-        WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
-        requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
+    # def set_webhook(self):
+    #     WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
+    #     requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
 
-    # def delete_webhook(self):
-    #     self.bot.delete_webhook()
+    def delete_webhook(self):
+        self.bot.delete_webhook()
 
     def load_data(self):
         data_loader = DataLoader('clear_data.json', 'questions.json')
@@ -121,7 +121,6 @@ class ClubBot:
 
 if __name__ == "__main__":
     club_bot = ClubBot(token)
-    # club_bot.delete_webhook()
-    club_bot.set_webhook()
-    requests.get(f'https://api.telegram.org/bot{token}/getWebhookInfo')
+    club_bot.delete_webhook()
+    # club_bot.set_webhook()
     # club_bot.start_polling()
