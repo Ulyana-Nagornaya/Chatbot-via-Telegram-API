@@ -170,6 +170,14 @@ class ClubBot:
                    'https://github.com/AnPruch/tuberous_club'
             self.bot.reply_to(message, text)
 
+        @self.bot.message_handler(content_types=['text'])
+        def handle_text(message):
+            text_markup = 'Извини, не могу ответить на твое сообщение\nВозможно, ты найдешь интересующую информацию ниже по кнопке?'
+            add_text_markup = telebot.types.InlineKeyboardMarkup()
+            text_message = telebot.types.InlineKeyboardButton("Дополнительная информация", callback_data="additional_info")
+            add_text_markup.add(text_message)
+            self.bot.send_message(message.chat.id, text_markup, reply_markup=add_text_markup)
+
     def ask_about_add_activities(self, message: Message) -> None:
         """
         Ask about start
