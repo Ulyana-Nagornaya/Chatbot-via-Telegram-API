@@ -123,4 +123,4 @@ if __name__ == "__main__":
     club_bot = ClubBot(token)
     club_bot.delete_webhook()
     # club_bot.set_webhook()
-    # club_bot.start_polling()
+    club_bot.start_polling()
