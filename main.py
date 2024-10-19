@@ -4,7 +4,6 @@ Creating chatbot via Telegram API
 import telebot
 from token_data import Token
 from data_loader import DataLoader
-import requests
 from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 
@@ -45,14 +44,10 @@ class ClubBot:
         self.subjects = []
         self.load_data()
         self.setup_handlers()
-        # self.delete_webhook()
+        self.delete_webhook()
 
-    # def set_webhook(self):
-    #     WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
-    #     requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
-
-    # def delete_webhook(self):
-    #     self.bot.delete_webhook()
+    def delete_webhook(self):
+        self.bot.delete_webhook()
 
     def load_data(self):
         data_loader = DataLoader('clear_data.json', 'questions.json')
@@ -121,6 +116,4 @@ class ClubBot:
 
 if __name__ == "__main__":
     club_bot = ClubBot(token)
-    # club_bot.delete_webhook()
-    # club_bot.set_webhook()
     club_bot.start_polling()
