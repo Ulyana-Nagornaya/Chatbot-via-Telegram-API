@@ -9,9 +9,6 @@ from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMar
 
 
 token = Token().get_token()
-# WEBHOOK_URL = 'https://railway.app/project/86807486-8c6e-4c27-a123-c4aae31b84e5'
-
-# requests.post(f'https://api.telegram.org/bot{token}/setWebhook?url={WEBHOOK_URL}')
 
 class Club:
     def __init__(self, name, info):
@@ -126,4 +123,5 @@ if __name__ == "__main__":
     club_bot = ClubBot(token)
     # club_bot.delete_webhook()
     club_bot.set_webhook()
+    requests.get(f'https://api.telegram.org/bot{token}/getWebhookInfo')
     # club_bot.start_polling()
