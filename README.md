@@ -1,1 +1,1 @@
-[# Telegram bot] https://web.telegram.org/k/#@hsetuber_bot)
+[Telegram bot] (https://web.telegram.org/k/#@hsetuber_bot)
