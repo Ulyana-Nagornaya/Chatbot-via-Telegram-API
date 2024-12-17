@@ -1,32 +1,112 @@
 """
-Creating chatbot via Telegram API.
+Creating chatbot via Telegram API
 """
-import os
-from pathlib import Path
-
 import telebot
-from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
-
-from clubs_database import Category, Database
 from data_loader import DataLoader
-from token_data import TOKEN
+from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from token_data import Token
+import os
+import psycopg2
 
+
+class Club:
+    """
+    Club class
+    """
+    def __init__(self, name: str, info: str) -> None:
+        """
+        Bot initialization
+
+        Args:
+            name (str): name
+            info (str): info
+        """
+        self.name = name
+        self.info = info
+
+    def get_info(self) -> str:
+        """
+        Get info about club
+        """
+        return f"{self.name} \n\n{self.info[1]}\n \n \n " \
+               f"Подробнее о клубе можешь узнать здесь: \n{self.info[0]}"
+
+
+class Category:
+    """
+    Club category class
+    """
+    def __init__(self, name: str, clubs: list) -> None:
+        """
+        Bot initialization
+
+        Args:
+            name (str): name
+            clubs (list): club list
+        """
+        self.name = name
+        self.clubs = clubs
+
+    def get_club_buttons(self) -> InlineKeyboardMarkup:
+        """
+        Get club buttons
+        """
+        markup = InlineKeyboardMarkup()
+        row = []
+        for club in self.clubs:
+            row.append(InlineKeyboardButton(club.name, callback_data=f'club_{club.name}'))
+
+            if len(row) == 2:
+                markup.add(*row)
+                row = []
+        if row:
+            markup.add(*row)
+
+        return markup
+class Database:
+    def __init__(self, db_name=None, user=None, password=None, host=None, port=None):
+        self.connection = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+        self.cursor = self.connection.cursor()
+
+    def get_categories(self):
+        self.cursor.execute("SELECT * FROM category")
+        return self.cursor.fetchall()
+
+    def get_clubs_by_category(self, category_id):
+        self.cursor.execute("SELECT name, link, description FROM clubs WHERE category_id = %s", (category_id,))
+        return self.cursor.fetchall()
+
+    def load_data(self):
+        categories_data = self.get_categories()
+        categories = []
+        for category_id, category_name in categories_data:
+            clubs_info = self.get_clubs_by_category(category_id)
+            clubs = [Club(name, (link, description)) for name, link, description in clubs_info]
+            categories.append(Category(category_name, clubs))
+        return categories
+
+    def close(self):
+        self.cursor.close()
+        self.connection.close()
 
 class ClubBot:
     """
     Bot class
     """
-    def __init__(self, bot_token: str,
-                 database: Database,
-                 questions_path: Path | str = '') -> None:
+    def __init__(self, token: str) -> None:
         """
-        Bot initialization.
+        Bot initialization
 
         Args:
-            bot_token (str): Token string
-            database_password (str): Password
+            token (str): token string
         """
-        self.bot = telebot.TeleBot(bot_token, parse_mode=None)
+        self.bot = telebot.TeleBot(token, parse_mode=None)
         self.categories = []
         self.last_msg = 'Надеюсь, что смог помочь тебе и информация была полезной! \n' \
                         'А если тебя ничего не заинтересовало, может, ты хочешь создать' \
@@ -34,16 +114,19 @@ class ClubBot:
                         '**Шмелёву Степану Викторовичу** - главе внеучебной деятельности ' \
                         'НИУ ВШЭ \n https://vk.com/id307399746 \n\nДо новых встреч :) \n' \
                         '\n Если захочешь снова начать со мной общение, нажми на /start'
-        self.database = database
+        self.additional_questions = {}
+        if os.environ.get('ENV') == 'production':
+            self.database = Database(db_name='railway', user='postgres', password='zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl', host='autorack.proxy.rlwy.net', port='20181')
+        else:
+            self.database = Database(db_name='tuberous_club', user='postgres', password='12345678', host='localhost', port='5432')
+
         self.categories = self.database.load_data()
-
-        self.dataloader = DataLoader(questions_path)
-        self.additional_questions = ''
-        if self.dataloader.questions_path:
-            self.dataloader.load_questions()
-            self.additional_questions = self.dataloader.additional_questions
-
+        self.load_add_questions()
         self.setup_handlers()
+
+    def load_add_questions(self) -> None:
+        data_loader = DataLoader('dataset/questions.json')
+        self.additional_questions = data_loader.load_questions()
 
     def setup_handlers(self) -> None:
         """
@@ -69,7 +152,7 @@ class ClubBot:
             elif call.data.isdigit():
                 category_index = int(call.data)
                 category = self.categories[category_index]
-                club_buttons = self.buttons_for_category(category)
+                club_buttons = category.get_club_buttons()
                 self.bot.send_message(call.message.chat.id,
                                       f"{category.name} - отличный выбор! \n"
                                         "Ты можешь узнать подробную информацию о клубах, "
@@ -122,12 +205,10 @@ class ClubBot:
             self.bot.reply_to(message, text)
 
         @self.bot.message_handler(content_types=['text'])
-        def handle_text(message: Message) -> None:
-            text_markup = 'Извини, не могу ответить на твое сообщение\n' \
-                          'Возможно, ты найдешь интересующую информацию ниже по кнопке?'
+        def handle_text(message):
+            text_markup = 'Извини, не могу ответить на твое сообщение\nВозможно, ты найдешь интересующую информацию ниже по кнопке?'
             add_text_markup = telebot.types.InlineKeyboardMarkup()
-            text_message = telebot.types.InlineKeyboardButton("Дополнительная информация",
-                                                              callback_data="additional_info")
+            text_message = telebot.types.InlineKeyboardButton("Дополнительная информация", callback_data="additional_info")
             add_text_markup.add(text_message)
             self.bot.send_message(message.chat.id, text_markup, reply_markup=add_text_markup)
 
@@ -183,24 +264,6 @@ class ClubBot:
         self.bot.send_message(message.chat.id, additional_message,
                               reply_markup=additional_markup)
 
-    @staticmethod
-    def buttons_for_category(category: Category) -> InlineKeyboardMarkup:
-        """
-        Create buttons for category
-        """
-        markup = InlineKeyboardMarkup()
-        row = []
-        for club in category.clubs:
-            row.append(InlineKeyboardButton(club.name, callback_data=f'club_{club.name}'))
-
-            if len(row) == 2:
-                markup.add(*row)
-                row = []
-        if row:
-            markup.add(*row)
-
-        return markup
-
     def start_polling(self) -> None:
         """
         Polling
@@ -209,15 +272,7 @@ class ClubBot:
 
 
 if __name__ == "__main__":
-    if os.environ.get('ENV') == 'production':
-        database = Database(db_name='railway', user='postgres', password='zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl',
-                                    host='autorack.proxy.rlwy.net', port='20181')
-    else:
-        database = Database(db_name='tuberous_club', user='postgres',
-                                    password='12345678', host='localhost',
-                                    port='5432')
-    club_bot = ClubBot(TOKEN, database,
-                       questions_path=Path(__file__).parent.parent
-                                      / 'dataset' / 'questions.json')
-    
+    token = Token().get_token()
+
+    club_bot = ClubBot(token)
     club_bot.start_polling()
