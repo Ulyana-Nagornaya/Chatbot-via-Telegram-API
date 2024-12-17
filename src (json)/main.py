@@ -237,8 +237,8 @@ class ClubBot:
         self.bot.polling()
 
 
-if __name__ == "__main__":
-    token = Token().get_token()
+# if __name__ == "__main__":
+#     token = Token().get_token()
 
-    club_bot = ClubBot(token)
-    club_bot.start_polling()
+#     club_bot = ClubBot(token)
+#     club_bot.start_polling()
