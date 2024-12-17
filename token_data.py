@@ -1,6 +1,6 @@
 class Token:
     def __init__(self):
-        self.token = '' #input your token here
+        self.token = '7604474051:AAErnNbDz427QWCrT4IBl039aCebdZx17fM' #input your token here
         self.name = 'hsetuberous_bot'
     def get_token(self):
         return self.token
