@@ -1,1 +1,1 @@
-worker: python "src (json)/main.py"
+worker: python "src (databse)/main.py"

@@ -5,6 +5,7 @@ import telebot
 from data_loader import DataLoader
 from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from token_data import Token
+import os
 import psycopg2
 
 
@@ -63,7 +64,18 @@ class Category:
 
         return markup
 class Database:
-    def __init__(self, db_name, user, password, host, port):
+    def __init__(self, db_name=None, user=None, password=None, host=None, port=None):
+        if os.environ.get('ENV') == 'production':
+            # Параметры для Railway
+            db_name = 'railway'
+            user = 'postgres'
+            password = 'zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl'
+            host = 'autorack.proxy.rlwy.net'
+            port = 20181
+        else:
+            if db_name is None or user is None or password is None or host is None or port is None:
+                raise ValueError("Для локальной разработки необходимо указать все параметры подключения.")
+
         self.connection = psycopg2.connect(
             dbname=db_name,
             user=user,
