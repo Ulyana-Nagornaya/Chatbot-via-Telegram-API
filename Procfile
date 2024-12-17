@@ -1,1 +1,1 @@
-worker: python "src (database)/main.py"
+worker: python src (database)/main.py
