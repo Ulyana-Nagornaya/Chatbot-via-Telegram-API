@@ -65,17 +65,6 @@ class Category:
         return markup
 class Database:
     def __init__(self, db_name=None, user=None, password=None, host=None, port=None):
-        if os.environ.get('ENV') == 'production':
-            # Параметры для Railway
-            db_name = 'railway'
-            user = 'postgres'
-            password = 'zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl'
-            host = 'autorack.proxy.rlwy.net'
-            port = 20181
-        else:
-            if db_name is None or user is None or password is None or host is None or port is None:
-                raise ValueError("Для локальной разработки необходимо указать все параметры подключения.")
-
         self.connection = psycopg2.connect(
             dbname=db_name,
             user=user,
@@ -126,7 +115,11 @@ class ClubBot:
                         'НИУ ВШЭ \n https://vk.com/id307399746 \n\nДо новых встреч :) \n' \
                         '\n Если захочешь снова начать со мной общение, нажми на /start'
         self.additional_questions = {}
-        self.database = Database(db_name='tuberous_club', user='postgres', password='12345678', host='localhost', port='5432')
+        if os.environ.get('ENV') == 'production':
+            self.database = Database(db_name='railway', user='postgres', password='zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl', host='autorack.proxy.rlwy.net', port='20181')
+        else:
+            self.database = Database(db_name='tuberous_club', user='postgres', password='12345678', host='localhost', port='5432')
+
         self.categories = self.database.load_data()
         self.load_add_questions()
         self.setup_handlers()
