@@ -10,7 +10,7 @@ class Club:
     """
     Club class.
     """
-    def __init__(self, name: str, info: tuple[str, str]) -> None:
+    def __init__(self, name: str, info) -> None:
         """
         Club instance initialization.
 
