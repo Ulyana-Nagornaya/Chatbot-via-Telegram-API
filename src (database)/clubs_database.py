@@ -84,7 +84,7 @@ class Database:
         )
         self.cursor = self.connection.cursor()
 
-    def get_categories(self) -> list | Any:
+    def get_categories(self):
         """
         Get list of categories.
 
