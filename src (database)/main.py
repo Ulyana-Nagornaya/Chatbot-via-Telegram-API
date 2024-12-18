@@ -115,10 +115,10 @@ class ClubBot:
                         'НИУ ВШЭ \n https://vk.com/id307399746 \n\nДо новых встреч :) \n' \
                         '\n Если захочешь снова начать со мной общение, нажми на /start'
         self.additional_questions = {}
-        # if os.environ.get('ENV') == 'production':
-        self.database = Database(db_name='railway', user='postgres', password='zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl', host='autorack.proxy.rlwy.net', port='20181')
-        # else:
-        #     self.database = Database(db_name='tuberous_club', user='postgres', password='12345678', host='localhost', port='5432')
+        if os.environ.get('ENV') == 'production':
+            self.database = Database(db_name='railway', user='postgres', password='zKbGbHPNygmKJojOUWtFyzVEXjFZuVyl', host='autorack.proxy.rlwy.net', port='20181')
+        else:
+            self.database = Database(db_name='tuberous_club', user='postgres', password='12345678', host='localhost', port='5432')
 
         self.categories = self.database.load_data()
         self.load_add_questions()
