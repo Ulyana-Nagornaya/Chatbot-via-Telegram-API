@@ -7,9 +7,9 @@ from pathlib import Path
 import telebot
 from telebot.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from src.clubs_database import Category, Database
-from src.data_loader import DataLoader
-from src.token_data import TOKEN
+from clubs_database import Category, Database
+from data_loader import DataLoader
+from token_data import TOKEN
 
 
 class ClubBot:
